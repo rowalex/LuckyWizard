@@ -409,6 +409,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: GridManager
       objectReference: {fileID: 0}
+    - target: {fileID: 9119199651166739408, guid: 99e90d995b78e224db99ecb21119303d, type: 3}
+      propertyPath: height
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 9119199651166739408, guid: 99e90d995b78e224db99ecb21119303d, type: 3}
+      propertyPath: mineCount
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
