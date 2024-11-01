@@ -1,12 +1,22 @@
+using UnityEditor.Animations;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
     [SerializeField] private int width;
-    [SerializeField] private int deltawidth;
+    [SerializeField] private float deltawidth;
     [SerializeField] private int height;
-    [SerializeField] private int deltaheight;
+    [SerializeField] private float deltaheight;
     [SerializeField] private int mineCount;
+
+    enum GamingState
+    {
+        win, lose, playing
+    }
+
+    private GamingState state;
+
+    [SerializeField] private int cellsLeft;
 
     [HideInInspector]
     public static GridManager Instance;
@@ -29,9 +39,17 @@ public class GridManager : MonoBehaviour
 
     public void CreateEmptyGrid()
     {
-        Debug.Log("Instance of Grid");
+        Debug.Log("Creating Grid");
 
         grid = new Tile[width, height];
+
+        ClearSceen();
+
+        TerrainGenerator.Instance.CreatNewTerrain();
+
+        cellsLeft = width * height;
+
+        state = GamingState.playing;
 
         for (int x = 0; x < width; x++)
         {
@@ -135,17 +153,26 @@ public class GridManager : MonoBehaviour
 
     public void OpenTile(int x, int y)
     {
-        var tile = grid[x, y];
+        if (state == GamingState.playing)
+        {
+            var tile = grid[x, y];
 
-        if (tile.mineCount == 0)
-            OpenBlankTiles(x, y);
-        
-        if (!tile.isOpen)
-            tile.Reveal();
+            if (tile.isMine)
+            {
+                state = GamingState.lose;
+                GameManager.Instance.EndGame();
+            }
 
-        if(tile.isMine)
-            GameManager.Instance.EndGame();
+            if (!tile.isOpen)
+            {
+                tile.Reveal();
+                ReduceUnknownCells();
+            }
 
+
+            if (tile.mineCount == 0)
+                OpenBlankTiles(x, y);
+        }
 
     }
 
@@ -160,14 +187,45 @@ public class GridManager : MonoBehaviour
                 int neighborY = y + dy;
                 if (dx == 0 && dy == 0) continue;
                 else if (neighborX >= 0 && neighborX < width && neighborY >= 0 && neighborY < height)
-                    if (grid[neighborX, neighborY].mineCount == 0 && !grid[neighborX, neighborY].isOpen)
-                    {
-                        grid[neighborX, neighborY].Reveal();
-                        OpenBlankTiles(neighborX, neighborY);
-                    }else
-                        grid[neighborX, neighborY].Reveal();
+                    if (!grid[neighborX, neighborY].isOpen)
+                        if (grid[neighborX, neighborY].mineCount == 0)
+                        {
+                            grid[neighborX, neighborY].Reveal();
+                            ReduceUnknownCells();
+                            OpenBlankTiles(neighborX, neighborY);
+                        }
+                        else
+                        {
+                            grid[neighborX, neighborY].Reveal();
+                            ReduceUnknownCells();
+                        }
             }
         }
 
     }
+
+    public Vector2 GetSize() => new Vector2((width-1) * deltawidth, (height-1) * deltaheight);
+    public Vector2Int GetGridSize() => new Vector2Int(width, height);
+
+    private void ClearSceen()
+    {
+        foreach(Transform child in gridParent)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
+
+    public void ReduceUnknownCells()
+    {
+        cellsLeft--;
+        if (cellsLeft <= mineCount)
+        {
+            state = GamingState.win;
+            GameManager.Instance.WinGame();
+        }
+           
+    }
+
+
 }

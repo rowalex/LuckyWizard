@@ -35,10 +35,21 @@ public class Tile : MonoBehaviour
         GridManager.Instance.OpenTile(x, y);
     }
 
+    private void OnMouseEnter()
+    {
+        blank.transform.position += new Vector3(0, 0.5f, 0);
+    }
+
+    private void OnMouseExit()
+    {
+        blank.transform.position += new Vector3(0, -0.5f, 0);
+    }
+
+
     public void Reveal()
     {
         isOpen = true;
-        blank.GetComponent<MeshRenderer>().enabled = false;
+        blank.SetActive(false);
         model.SetActive(true);
         Debug.Log($"Tile at {x}, {y} revealed. and there are {mineCount} mines around");
     }
