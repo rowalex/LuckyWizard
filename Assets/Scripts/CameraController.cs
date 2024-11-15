@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -47,23 +48,24 @@ public class CameraController : MonoBehaviour
     {
         if (isgame && target)
         {
-            // Проверяем, нажата ли левая кнопка мыши
-            if (Input.GetMouseButton(1)) // Левая кнопка мыши
+            float mw =  -Input.GetAxis("Mouse ScrollWheel") * 2;
+
+            distance = Math.Clamp(distance + mw, 10, 20);
+
+            if (Input.GetMouseButton(2)) //колесо
             {
                 Vector3 delta = Input.mousePosition - lastMousePosition;
                 float moveX = -delta.x * moveSpeed;
                 float moveZ = -delta.y * moveSpeed;
 
-                // Перемещение камеры по X и Z
-                //transform.position += new Vector3(moveX, 0, moveZ);
                 target.position += new Vector3(moveX, 0, moveZ);
                 target.position = new Vector3(Mathf.Clamp(target.position.x, 0 , border.x), 0, Mathf.Clamp(target.position.z, 0, border.y));
             }
 
             lastMousePosition = Input.mousePosition;
 
-            // Обновляем позицию камеры
             UpdateCameraPosition();
+
         }
         else if (pos != Vector3.zero && target)
         {
@@ -75,7 +77,6 @@ public class CameraController : MonoBehaviour
 
     private void UpdateCameraPosition()
     {
-        // Устанавливаем позицию камеры на заданное расстояние и угол
         Quaternion rotation = Quaternion.Euler(angle, 0, 0);
         pos = target.position - rotation * Vector3.forward * distance;
 

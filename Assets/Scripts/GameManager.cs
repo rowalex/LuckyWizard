@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         StartStartLobby();
+        SoundManager.Instance.SetBackGroundMusic("background");
     }
 
 
@@ -39,6 +40,12 @@ public class GameManager : MonoBehaviour
         IntefaceManager.Instance.ActivateLobby(1);
     }
 
+    public void StartSettings()
+    {
+        CameraController.Instance.SetCamera(new Vector3(-50.3f, 1f, -52.5f), LobbyTarget);
+        IntefaceManager.Instance.ActivateLobby(5);
+    }
+
 
     public void StartGame()
     {
@@ -49,12 +56,23 @@ public class GameManager : MonoBehaviour
 
     public void EndGame()
     {
+        SoundManager.Instance.Play("lose");
         IntefaceManager.Instance.ActivateLobby(4);
     }
 
     public void WinGame()
     {
+        SoundManager.Instance.Play("win");
         IntefaceManager.Instance.ActivateLobby(3);
+    }
+
+    public void CloseApp()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+        Application.Quit();
+
     }
 }
 
